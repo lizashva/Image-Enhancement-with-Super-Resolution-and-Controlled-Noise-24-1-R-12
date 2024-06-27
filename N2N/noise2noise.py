@@ -76,7 +76,8 @@ class Noise2Noise(object):
 
 
     def save_model(self, epoch, stats, first=False):
-        """Saves model to files; can be overwritten at every epoch to save disk space."""
+        """Saves model to files; can be overwritten at every epoch to save disk space.
+                learned parameters (weights and biases) """
 
         # Create directory for model checkpoints, if nonexistent
         if first:
@@ -103,7 +104,7 @@ class Noise2Noise(object):
             valid_loss = stats['valid_loss'][epoch]
             fname_unet = '{}/n2n-epoch{}-{:>1.5f}.pt'.format(self.ckpt_dir, epoch + 1, valid_loss)
         print('Saving checkpoint to: {}\n'.format(fname_unet))
-        torch.save(self.model.state_dict(), fname_unet)
+        torch.save(self.model.state_dict(), fname_unet)  # Contains -  weights and biases
 
         # Save stats to JSON
         fname_dict = '{}/n2n-stats.json'.format(self.ckpt_dir)
@@ -127,10 +128,13 @@ class Noise2Noise(object):
         # Evaluate model on validation set
         print('\rTesting model on validation set... ', end='')
         epoch_time = time_elapsed_since(epoch_start)[0]
+        # Evaluates denoiser on validation set.
         valid_loss, valid_time, valid_psnr = self.eval(valid_loader)
         show_on_epoch_end(epoch_time, valid_time, valid_loss, valid_psnr)
 
         # Decrease learning rate if plateau
+        """ Adjusts the learning rate based on the validation loss. Typically, if the validation loss plateaus
+        (does not decrease), the learning rate is reduced."""
         self.scheduler.step(valid_loss)
 
         # Save checkpoint
@@ -257,11 +261,12 @@ class Noise2Noise(object):
                 batch_start = datetime.now()
                 progress_bar(batch_idx, num_batches, self.p.report_interval, loss_meter.val)
 
+                # Moves the source and target data to the GPU if CUDA is enabled.
                 if self.use_cuda:
                     source = source.cuda()
                     target = target.cuda()
 
-                # Denoise image
+                # Denoise image-forward method called, source = noisy images
                 source_denoised = self.model(source)
 
                 loss = self.loss(source_denoised, target)

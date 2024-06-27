@@ -43,5 +43,5 @@ if __name__ == '__main__':
     params.redux = False
     params.clean_targets = True
     test_loader = load_dataset(params.data, 0, params, shuffled=False, single=True)
-    n2n.load_model(params.load_ckpt)
+    n2n.load_model(params.load_ckpt)        # The learned parameters for making predictions on new data.
     n2n.test(test_loader, show=params.show_output)

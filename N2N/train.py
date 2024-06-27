@@ -50,7 +50,7 @@ if __name__ == '__main__':
     # Parse training parameters
     params = parse_args()
 
-    # Train/valid datasets
+    # Train/valid datasets - adding noise to the image
     train_loader = load_dataset(params.train_dir, params.train_size, params, shuffled=True)
     valid_loader = load_dataset(params.valid_dir, params.valid_size, params, shuffled=False)
 

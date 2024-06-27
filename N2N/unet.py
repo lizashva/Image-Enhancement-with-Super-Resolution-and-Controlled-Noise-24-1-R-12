@@ -31,7 +31,7 @@ class UNet(nn.Module):
         self._block3 = nn.Sequential(
             nn.Conv2d(48, 48, 3, stride=1, padding=1),
             nn.ReLU(inplace=True),
-            nn.ConvTranspose2d(48, 48, 3, stride=2, padding=1, output_padding=1))
+            nn.ConvTranspose2d(48, 48, 3, stride=2, padding=1, output_padding=1))   # upsample- learning parameters
             #nn.Upsample(scale_factor=2, mode='nearest'))
 
         # Layers: dec_conv5a, dec_conv5b, upsample4
