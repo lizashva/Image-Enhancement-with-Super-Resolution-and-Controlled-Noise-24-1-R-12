@@ -121,13 +121,12 @@ class NoisyDataset(AbstractDataset):
         c = len(img.getbands())
 
         # Poisson distribution
-        # It is unclear how the paper handles this. Poisson noise is not additive,
-        # it is data dependent, meaning that adding sampled valued from a Poisson
-        # will change the image intensity...
         if self.noise_type == 'poisson':
-            noise = np.random.poisson(img)
-            noise_img = img + noise
-            noise_img = 255 * (noise_img / np.amax(noise_img))
+            img_array = np.array(img).astype(np.float32)
+            noise_img = np.random.poisson(img_array / 255.0 * self.noise_param) / self.noise_param * 255.0
+            # noise = np.random.poisson(img)
+            # noise_img = img + noise
+            # noise_img = 255 * (noise_img / np.amax(noise_img))
 
         # Normal distribution (default)
         else:
