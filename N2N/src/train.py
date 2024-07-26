@@ -44,6 +44,21 @@ def parse_args():
     return parser.parse_args()
 
 
+def train_N2N(config):
+    """Trains Noise2Noise."""
+
+    # Parse training parameters
+    # params = parse_args()
+    params = config
+
+    # Train/valid datasets - adding noise to the image
+    train_loader = load_dataset(params.train_dir, params.train_size, params, shuffled=True)
+    valid_loader = load_dataset(params.valid_dir, params.valid_size, params, shuffled=False)
+
+    # Initialize model and train
+    n2n = Noise2Noise(params, trainable=True)
+    n2n.train(train_loader, valid_loader)
+
 if __name__ == '__main__':
     """Trains Noise2Noise."""
 

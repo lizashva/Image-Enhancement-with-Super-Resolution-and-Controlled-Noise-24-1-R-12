@@ -8,7 +8,7 @@ from datasets import load_dataset
 from noise2noise import Noise2Noise
 
 from argparse import ArgumentParser
-
+from config import *
 
 def parse_args():
     """Command-line argument parser for testing."""
@@ -32,11 +32,12 @@ def parse_args():
     return parser.parse_args()
 
 
-if __name__ == '__main__':
+def test_N2N(config):
     """Tests Noise2Noise."""
 
     # Parse test parameters
-    params = parse_args()
+    #params = parse_args()
+    params = config
 
     # Initialize model and test
     n2n = Noise2Noise(params, trainable=False)

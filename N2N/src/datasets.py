@@ -119,24 +119,29 @@ class NoisyDataset(AbstractDataset):
 
         w, h = img.size
         c = len(img.getbands())
-
+        img_array = np.array(img).astype(np.float32)
         # Poisson distribution
         if self.noise_type == 'poisson':
-            img_array = np.array(img).astype(np.float32)
-            noise_img = np.random.poisson(img_array / 255.0 * self.noise_param) / self.noise_param * 255.0
-            # noise = np.random.poisson(img)
-            # noise_img = img + noise
-            # noise_img = 255 * (noise_img / np.amax(noise_img))
+            scale_factor = 1.0 / self.noise_param
+            noise_img = np.random.poisson(img_array / scale_factor)
 
-        # Normal distribution (default)
+        # Brownian (Brown Gaussian) noise
+        elif self.noise_type == 'gaussian':
+            mean = 0
+            std = self.noise_param
+            gaussian_noise = np.random.normal(mean, std, (h, w, c))
+            brownian_noise = np.cumsum(gaussian_noise, axis=0)  # Integrate along rows
+            brownian_noise = np.cumsum(brownian_noise, axis=1)  # Integrate along columns
+            brownian_noise = brownian_noise / np.std(brownian_noise) * std  # Normalize
+            noise_img = img_array + brownian_noise
+
+        # Normal (Gaussian) distribution
         else:
             if self.seed:
                 std = self.noise_param
             else:
                 std = np.random.uniform(0, self.noise_param)
             noise = np.random.normal(0, std, (h, w, c))
-
-            # Add noise and clip
             noise_img = np.array(img) + noise
 
         noise_img = np.clip(noise_img, 0, 255).astype(np.uint8)
@@ -287,7 +292,7 @@ class MonteCarloDataset(AbstractDataset):
 
         # Crop
         if self.crop_size != 0:
-            buffers = [render, albedo, normal, target]
+            buffers = [render, albedo]
             buffers = [tvF.to_tensor(b) for b in self._random_crop(buffers)]
 
         # Stack buffers to create input volume
