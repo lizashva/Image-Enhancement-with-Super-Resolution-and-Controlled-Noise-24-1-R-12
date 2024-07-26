@@ -1,0 +1,4 @@
+# Ignore virtual environments
+/venv/
+/SuperResolution/Linnaeus_5_bigger/
+/.idea
