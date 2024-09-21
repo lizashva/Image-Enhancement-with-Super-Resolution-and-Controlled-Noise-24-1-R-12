@@ -19,7 +19,7 @@ pip3 install --user -r requirements.txt
 This code was tested on Python 3.9 
 
 ## Dataset
-
+We use [COCO 2017](http://cocodataset.org/#download) dataset that has a small validation set (1 GB) which can be nicely split into train/valid for easier training.
 You can download the full dataset by running 'LoadDataSet.bat' or use another dataset. Add your dataset to 'data' folder when the train images insert to 'train' folder and validation images to 'valid' folder.
 ```
 mkdir data
