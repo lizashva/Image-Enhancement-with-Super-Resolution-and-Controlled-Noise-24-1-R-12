@@ -8,6 +8,7 @@ import numpy as np              # pkg to read filepaths from the dataset folder
 import tensorflow.keras as K 
 import numpy as np
 import tensorflow as tf
+import matplotlib.pyplot as plt
 from tensorflow.keras.models import Model, load_model
 from tensorflow.keras.layers import Layer,Input, Conv2D, BatchNormalization, Activation, MaxPool2D, UpSampling2D, Add, Concatenate
 from tensorflow.keras.applications.vgg19 import VGG19
@@ -22,16 +23,19 @@ class pixel_shuffle(Layer):
         return inputs
 # Define the custom loss and metrics
 # load pre-trained (imagenet) vgg network, excluding fully-connected layer on the top
-vgg = VGG19(include_top=False, weights='imagenet', input_shape=(None,None,3))
+vgg = VGG19(include_top=False, weights='imagenet', input_shape=(None, None, 3))
 vgg_layer = K.Model(inputs=vgg.input, outputs=vgg.get_layer('block3_conv3').output)
+for l in vgg_layer.layers:
+    l.trainable = False
 
-
-def perceptual_loss(y_true,y_pred):
+def perceptual_loss(y_true, y_pred):
     '''This function computes the perceptual loss using an already trained VGG layer'''
-    y_t=vgg_layer(y_true)
-    y_p=vgg_layer(y_pred)
-    loss=K.losses.mean_squared_error(y_t,y_p)
+    y_t = vgg_layer(y_true)
+    y_p = vgg_layer(y_pred)
+    loss = K.losses.mean_squared_error(y_t, y_p)
     return loss
+
+
 
 def psnr(y_true,y_pred):
     return tf.image.psnr(y_true,y_pred,1.0)
@@ -140,35 +144,126 @@ def load_model_super_resolution():
     model.compile(optimizer='adam', loss=perceptual_loss)  # Ensuring loss function is correctly set
     print("Model loaded successfully.")
     return model
+def image_proc_net_test():
+    """
+    Function which creates the model to preprocess images for testing mode.
+    """
+    inputs = tf.keras.layers.Input((None, None, 3))
+    # Testing mode: just an upsampling
+    x = tf.keras.layers.UpSampling2D((2, 2))(inputs)
 
+    model = tf.keras.models.Model(inputs, x)
 
-def preprocess_image(img_path, input_size=256):  # Defaulting to 256 as it's required by the model
+    for l in model.layers:
+        l.trainable = False
+
+    return model
+
+# Instantiating the test model
+image_proc_test = image_proc_net_test()
+
+def image_preprocess_test(image):
+    """
+    Function which preprocesses an image automatically for testing mode only.
+
+    input:
+      - image: np array (image tensor)
+    """
+    image = np.expand_dims(image, axis=0)
+    preprocessed_image = tf.squeeze(image_proc_test(image))
+    return preprocessed_image
+
+def read_image(img_path):
+    """
+    Function which loads an image from a path and converts it into np array
+    """
     img = cv2.imread(img_path)
-    if img is None:
-        raise FileNotFoundError("The provided image path does not exist or the file is not an image.")
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    img = cv2.resize(img, (input_size, input_size))  # Ensuring image is resized to 256x256
-    img = img.astype(np.float32) / 255.0
-    img = np.expand_dims(img, axis=0)  # Add batch dimension
+    b, g, r = cv2.split(img)  # cv2 reads BGR instead of canonical RGB
+    img = cv2.merge([r, g, b])  # Switching it to RGB
     return img
 
-def super_resolve_image(image_path, save_path):
-    print(f"Performing super-resolution on image: {image_path}")
-    model = load_model_super_resolution()
+def preprocess_image(image_path):
+    """
+    Function which reads and preprocesses an image from a given path for testing mode.
+    """
+    img = read_image(image_path)
+    preprocessed_img = image_preprocess_test(img)
+    return preprocessed_img
 
-    # Preprocess the image, ensure input size is set to 256 which is expected by your model
-    low_res_img = preprocess_image(image_path, 256)
-    
-    # Use the model to predict the high-resolution version of the image
-    high_res_img = model.predict(low_res_img)
-    high_res_img = np.clip(high_res_img.squeeze(), 0, 1)  # Ensure values are between 0 and 1
+def show_pictures(img_idx, x_batch, y_batch, model):
+    """
+    Function which shows 3 images:
+    - Ground truth: High Resolution image
+    - Low Resolution image
+    - Super Resolution image using our trained model
+    """
+    fig = plt.figure(figsize=(15, 18))
 
-    # Convert the high-resolution image from numpy array to PIL Image
+    ax1 = fig.add_subplot(1, 3, 1)
+    im = model.predict(np.expand_dims(x_batch[img_idx], axis=0))
+    im = np.squeeze(im)
+    ax1.imshow(abs(im))
+    ax1.set_title('Super Resolution (from LR)')
+
+    ax2 = fig.add_subplot(1, 3, 2)
+    ax2.imshow(x_batch[img_idx])
+    ax2.set_title('Low Resolution')
+
+    ax3 = fig.add_subplot(1, 3, 3)
+    ax3.imshow(y_batch[img_idx])
+    ax3.set_title('Ground truth')
+
+    plt.show()
+
+def super_resolve_single_image(model, image_path, save_path, plot=False):
+    """
+    Function to super-resolve a single image using a given model.
+
+    input:
+      - model: the trained model for super-resolution
+      - image_path: path to the low-resolution image
+      - save_path: path to save the super-resolved image
+      - plot: boolean flag to indicate whether to plot the images
+    """
+    img_y = read_image(image_path)
+    img_x = image_preprocess_test(img_y)
+    low_res_img = np.array(img_x, np.float32) / 255.0
+    high_res_pred = model.predict(np.expand_dims(low_res_img, axis=0))
+    high_res_img = np.clip(high_res_pred.squeeze(), 0, 1)  # Ensure valid image range
+    # show_pictures(0, img_x, img_y, model)
+    # Ensure the directory for the save path exists
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+
+    # Save the super-resolved image
     high_res_img = (high_res_img * 255).astype(np.uint8)
-    high_res_img_pil = Image.fromarray(cv2.cvtColor(high_res_img, cv2.COLOR_RGB2BGR))
+    cv2.imwrite(save_path, cv2.cvtColor(high_res_img, cv2.COLOR_RGB2BGR))
 
-    # Save the high-resolution image using PIL, which supports .save()
-    high_res_img_pil.save(save_path)
-    print(f"High-resolution image saved at: {save_path}")
+    # Verify that the image was saved
+    if os.path.isfile(save_path):
+        print(f"High-resolution image saved to {save_path}")
+    else:
+        print(f"Error: Failed to save high-resolution image to {save_path}")
+
+    # # Plot the images if plot is True
+    # if plot:
+    #     fig = plt.figure(figsize=(15, 18))
+
+    #     ax1 = fig.add_subplot(1, 3, 1)
+    #     ax1.imshow(np.squeeze(high_res_img))
+    #     ax1.set_title('Super Resolution (from LR)')
+    #     ax1.axis('off')
+
+    #     ax2 = fig.add_subplot(1, 3, 2)
+    #     ax2.imshow(np.squeeze(low_res_img))
+    #     ax2.set_title('Low Resolution')
+    #     ax2.axis('off')
+
+    #     ax3 = fig.add_subplot(1, 3, 3)
+    #     ax3.imshow(np.squeeze(y_batch[0]))
+    #     ax3.set_title('Ground truth')
+    #     ax3.axis('off')
+
+    #     plt.show()
 
     return save_path
+

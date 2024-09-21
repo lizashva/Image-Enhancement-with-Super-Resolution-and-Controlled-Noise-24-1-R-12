@@ -1,0 +1,57 @@
+[
+    {
+        "model": "Noise2Noise",
+        "dataset": "dataset/data_set2",
+        "noiseType": "Poisson",
+        "trainSize": "1000",
+        "validSize": "500",
+        "nbEpochs": "30",
+        "loss": "L1",
+        "noiseParam": "25",
+        "cropSize": "256"
+    },
+    {
+        "model": "Noise2Noise",
+        "dataset": "dataset/data_set2",
+        "noiseType": "Poisson",
+        "trainSize": "1000",
+        "validSize": "500",
+        "nbEpochs": "30",
+        "loss": "L1",
+        "noiseParam": "25",
+        "cropSize": "128"
+    },
+    {
+        "model": "Noise2Noise",
+        "dataset": "dataset/data_set2",
+        "noiseType": "Poisson",
+        "trainSize": "1000",
+        "validSize": "300",
+        "nbEpochs": "30",
+        "loss": "L1",
+        "noiseParam": "25",
+        "cropSize": "128"
+    },
+    {
+        "model": "Noise2Noise",
+        "dataset": "dataset/data_set2",
+        "noiseType": "Multiplicative Bernoulli",
+        "trainSize": "1000",
+        "validSize": "300",
+        "nbEpochs": "50",
+        "loss": "L2",
+        "noiseParam": "25",
+        "cropSize": "256"
+    },
+    {
+        "model": "Noise2Noise",
+        "dataset": "dataset/data_set2",
+        "noiseType": "Multiplicative Bernoulli",
+        "trainSize": "1000",
+        "validSize": "300",
+        "nbEpochs": "50",
+        "loss": "L2",
+        "noiseParam": "25",
+        "cropSize": "256"
+    }
+]

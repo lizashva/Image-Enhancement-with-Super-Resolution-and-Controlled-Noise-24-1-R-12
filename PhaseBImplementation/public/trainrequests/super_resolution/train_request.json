@@ -1,0 +1,24 @@
+[
+    {
+        "model": "Super resolution",
+        "dataset": "dataset/data_set1",
+        "noiseType": "Poisson",
+        "trainSize": "511",
+        "validSize": "26",
+        "nbEpochs": "5",
+        "loss": "L1",
+        "noiseParam": "12",
+        "cropSize": "256"
+    },
+    {
+        "model": "Super resolution",
+        "dataset": "dataset/data_set3",
+        "noiseType": "Poisson",
+        "trainSize": "200",
+        "validSize": "50",
+        "nbEpochs": "12",
+        "loss": "L2",
+        "noiseParam": "12",
+        "cropSize": "256"
+    }
+]
