@@ -1,0 +1,13 @@
+python ./train.py ^
+--train-dir ./data/train ^
+--train-size 1000 ^
+--valid-dir ./data/valid ^
+--valid-size 300 ^
+--ckpt-save-path ./ckpts ^
+--ckpt-overwrite ^
+--report-interval 25 ^
+--nb-epochs 30 ^
+--loss l2 ^
+--noise-type poisson ^
+--noise-param 50 ^
+--cuda

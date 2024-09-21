@@ -191,6 +191,47 @@ class Noise2Noise(object):
             img_name = test_loader.dataset.imgs[i]
             create_montage(img_name, self.p.noise_type, save_path, source_imgs[i], denoised_imgs[i], clean_imgs[i], show)
 
+    def denoise(self, test_loader, show):
+        """Evaluates denoiser on test set."""
+
+        self.model.train(False)
+
+        source_imgs = []
+        denoised_imgs = []
+
+        # Create directory for denoised images
+        denoised_dir = os.path.dirname(self.p.data)
+        save_path = os.path.join(denoised_dir, 'denoised')
+        if not os.path.isdir(save_path):
+            os.mkdir(save_path)
+
+        for batch_idx, (source, target) in enumerate(test_loader):
+            # Only do first <show> images
+            if show == 0 or batch_idx >= show:
+                break
+
+            source_imgs.append(source)
+
+            if self.use_cuda:
+                source = source.cuda()
+
+            # Denoise
+            denoised_img = self.model(source).detach()
+            denoised_imgs.append(denoised_img)
+
+        # Squeeze tensors
+        source_imgs = [t.squeeze(0) for t in source_imgs]
+        denoised_imgs = [t.squeeze(0) for t in denoised_imgs]
+
+        # Create montage and save images
+        print('Saving images and montages to: {}'.format(save_path))
+        for i in range(len(source_imgs)):
+            img_name = test_loader.dataset.imgs[i]
+            create_montage(img_name, self.p.noise_type, save_path, source_imgs[i], denoised_imgs[i], source_imgs[i],
+                           show)
+            #save_images(img_name, self.p.noise_type, save_path, source_imgs[i], denoised_imgs[i])
+
+        return save_path
 
     def eval(self, valid_loader):
         """Evaluates denoiser on validation set."""

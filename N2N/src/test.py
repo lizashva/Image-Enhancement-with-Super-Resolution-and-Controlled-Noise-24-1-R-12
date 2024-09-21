@@ -8,7 +8,6 @@ from datasets import load_dataset
 from noise2noise import Noise2Noise
 
 from argparse import ArgumentParser
-from config import *
 
 def parse_args():
     """Command-line argument parser for testing."""
@@ -21,10 +20,11 @@ def parse_args():
     parser.add_argument('--load-ckpt', help='load model checkpoint')
     parser.add_argument('--show-output', help='pop up window to display outputs', default=0, type=int)
     parser.add_argument('--cuda', help='use cuda', action='store_true')
+    parser.add_argument('--noisy_source', help='source option', default=True)
 
     # Corruption parameters
     parser.add_argument('-n', '--noise-type', help='noise type',
-        choices=['gaussian', 'poisson', 'text', 'mc'], default='gaussian', type=str)
+        choices=['gaussian', 'poisson', 'text'], default='gaussian', type=str)
     parser.add_argument('-v', '--noise-param', help='noise parameter (e.g. sigma for gaussian)', default=50, type=float)
     parser.add_argument('-s', '--seed', help='fix random seed', type=int)
     parser.add_argument('-c', '--crop-size', help='image crop size', default=256, type=int)
@@ -32,12 +32,11 @@ def parse_args():
     return parser.parse_args()
 
 
-def test_N2N(config):
+if __name__ == '__main__':
     """Tests Noise2Noise."""
 
     # Parse test parameters
-    #params = parse_args()
-    params = config
+    params = parse_args()
 
     # Initialize model and test
     n2n = Noise2Noise(params, trainable=False)
@@ -45,4 +44,7 @@ def test_N2N(config):
     params.clean_targets = True
     test_loader = load_dataset(params.data, 0, params, shuffled=False, single=True)
     n2n.load_model(params.load_ckpt)        # The learned parameters for making predictions on new data.
-    n2n.test(test_loader, show=params.show_output)
+    if params.noisy_source:
+        path = n2n.denoise(test_loader, show=params.show_output)
+    else:
+        path = n2n.test(test_loader, show=params.show_output)

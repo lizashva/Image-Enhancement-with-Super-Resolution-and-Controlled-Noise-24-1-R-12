@@ -20,7 +20,7 @@ def parse_args():
     parser.add_argument('-v', '--valid-dir', help='test set path', default='./../data/valid')
     parser.add_argument('--ckpt-save-path', help='checkpoint save path', default='./../ckpts')
     parser.add_argument('--ckpt-overwrite', help='overwrite model checkpoint on save', action='store_true')
-    parser.add_argument('--report-interval', help='batch report interval', default=500, type=int)
+    parser.add_argument('--report-interval', help='batch report interval', default=25, type=int)
     parser.add_argument('-ts', '--train-size', help='size of train dataset', type=int)
     parser.add_argument('-vs', '--valid-size', help='size of valid dataset', type=int)
 
@@ -35,29 +35,14 @@ def parse_args():
 
     # Corruption parameters
     parser.add_argument('-n', '--noise-type', help='noise type',
-        choices=['gaussian', 'poisson', 'text', 'mc'], default='gaussian', type=str)
+        choices=['gaussian', 'poisson', 'text', 'bernoulli'], default='gaussian', type=str)
     parser.add_argument('-p', '--noise-param', help='noise parameter (e.g. std for gaussian)', default=50, type=float)
     parser.add_argument('-s', '--seed', help='fix random seed', type=int)
-    parser.add_argument('-c', '--crop-size', help='random crop size', default=128, type=int)
+    parser.add_argument('-c', '--crop-size', help='random crop size', default=256, type=int)
     parser.add_argument('--clean-targets', help='use clean targets for training', action='store_true')
 
     return parser.parse_args()
 
-
-def train_N2N(config):
-    """Trains Noise2Noise."""
-
-    # Parse training parameters
-    # params = parse_args()
-    params = config
-
-    # Train/valid datasets - adding noise to the image
-    train_loader = load_dataset(params.train_dir, params.train_size, params, shuffled=True)
-    valid_loader = load_dataset(params.valid_dir, params.valid_size, params, shuffled=False)
-
-    # Initialize model and train
-    n2n = Noise2Noise(params, trainable=True)
-    n2n.train(train_loader, valid_loader)
 
 if __name__ == '__main__':
     """Trains Noise2Noise."""

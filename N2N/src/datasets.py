@@ -126,14 +126,21 @@ class NoisyDataset(AbstractDataset):
             noise_img = np.random.poisson(img_array / scale_factor)
 
         # Brownian (Brown Gaussian) noise
-        elif self.noise_type == 'gaussian':
-            mean = 0
-            std = self.noise_param
-            gaussian_noise = np.random.normal(mean, std, (h, w, c))
-            brownian_noise = np.cumsum(gaussian_noise, axis=0)  # Integrate along rows
-            brownian_noise = np.cumsum(brownian_noise, axis=1)  # Integrate along columns
-            brownian_noise = brownian_noise / np.std(brownian_noise) * std  # Normalize
-            noise_img = img_array + brownian_noise
+        # elif self.noise_type == 'gaussian':
+        #     mean = 0
+        #     std = self.noise_param
+        #     gaussian_noise = np.random.normal(mean, std, (h, w, c))
+        #     brownian_noise = np.cumsum(gaussian_noise, axis=0)  # Integrate along rows
+        #     brownian_noise = np.cumsum(brownian_noise, axis=1)  # Integrate along columns
+        #     brownian_noise = brownian_noise / np.std(brownian_noise) * std  # Normalize
+        #     noise_img = img_array + brownian_noise
+
+        # Bernoulli distribution
+        elif self.noise_type == 'bernoulli':
+            p = self.noise_param / 100.0  # Assuming noise_param is a percentage
+            bernoulli_noise = np.random.binomial(1, p, (h, w, c)) * 255  # Binary noise (0 or 255)
+            noise_img = img_array + bernoulli_noise
+            noise_img = np.clip(noise_img, 0, 255).astype(np.uint8)  # Clip values to valid range
 
         # Normal (Gaussian) distribution
         else:
@@ -199,7 +206,7 @@ class NoisyDataset(AbstractDataset):
     def _corrupt(self, img):
         """Corrupts images (Gaussian, Poisson, or text overlay)."""
 
-        if self.noise_type in ['gaussian', 'poisson']:
+        if self.noise_type in ['gaussian', 'poisson', 'bernoulli']:
             return self._add_noise(img)
         elif self.noise_type == 'text':
             return self._add_text_overlay(img)
