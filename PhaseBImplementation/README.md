@@ -1,4 +1,3 @@
-
 # Image Enhancement with Super Resolution and Controlled Noise
 
 ## Project Overview
@@ -6,6 +5,7 @@
 The **Pixel Pro GUI** is designed to offer a comprehensive interface for a sophisticated image processing model developed within this project. It allows users to apply super-resolution and noise removal techniques to images through an easy-to-use graphical interface.
 
 ### Features:
+
 - **Training Section**: Enables users to configure the model’s parameters and select appropriate datasets for training.
 - **Inference Section**: Allows users to apply pre-trained models to new images and test various enhancement methods.
 
@@ -32,6 +32,7 @@ git clone https://github.com/lizashva/Image-Enhancement-with-Super-Resolution-an
 ### 2. Install Dependencies
 
 #### Backend (Python Server)
+
 Navigate to the `python-server` folder and install the Python dependencies:
 
 ```bash
@@ -40,6 +41,7 @@ pip install -r requirements.txt
 ```
 
 #### Frontend (Client)
+
 Navigate to the `client` folder and install the npm packages:
 
 ```bash
@@ -57,8 +59,8 @@ Download the [Super Resolution Weights (super_resolution_weights.h5)](https://dr
 
 - **Location in Drive**: `Trained Models/Super Resolution/super_resolution_weights.h5`
 - **Steps**:
-    1. Create a folder named `models` inside the `python-server` directory if it doesn’t already exist.
-    2. Move or copy the `super_resolution_weights.h5` file into this newly created `models` folder.
+  1. Create a folder named `models` inside the `python-server` directory if it doesn’t already exist.
+  2. Move or copy the `super_resolution_weights.h5` file into this newly created `models` folder.
 
 ```bash
 # Example structure after moving the file:
@@ -75,9 +77,9 @@ Download the [Noise2Noise models and weights](https://drive.google.com/drive/fol
 - This includes multiple subfolders like `bernoulli`, `brownGaussian`, `gaussian`, `poisson`, `text`.
 
 - **Steps**:
-    1. Navigate to `python-server/functions/N2N/`.
-    2. Create a folder named `models` inside the `N2N` directory if it doesn’t already exist.
-    3. Download and move the folders (e.g., `bernoulli`, `brownGaussian`, etc.) into this `models` folder.
+  1. Navigate to `python-server/functions/N2N/`.
+  2. Create a folder named `models` inside the `N2N` directory if it doesn’t already exist.
+  3. Download and move the folders (e.g., `bernoulli`, `brownGaussian`, etc.) into this `models` folder.
 
 ```bash
 # Example structure after moving the folders:
@@ -129,13 +131,3 @@ The server will start on **port 5000**, and the client will start on **port 3000
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## Credits
-
-- Developed by [lizashva](https://github.com/lizashva)
-- [Project GitHub Repository](https://github.com/lizashva/Image-Enhancement-with-Super-Resolution-and-Controlled-Noise-24-1-R-12)
-- Models and weights provided in the [Google Drive Link](https://drive.google.com/drive/folders/1SGRqb7oJHWqFRinaHBjdj3pGn_Jsgnau)
-
----
