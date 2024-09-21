@@ -77,16 +77,15 @@ Download the [Noise2Noise models and weights](https://drive.google.com/drive/fol
 - This includes multiple subfolders like `bernoulli`, `brownGaussian`, `gaussian`, `poisson`, `text`.
 
 - **Steps**:
-  1. Navigate to `python-server/functions/N2N/`.
+  1. Navigate to `python-server/`.
   2. Create a folder named `models` inside the `N2N` directory if it doesn’t already exist.
   3. Download and move the folders (e.g., `bernoulli`, `brownGaussian`, etc.) into this `models` folder.
 
 ```bash
 # Example structure after moving the folders:
 python-server/
-└── functions/
-    └── N2N/
-        └── models/
+└──
+    └── models/
             ├── bernoulli/
             ├── brownGaussian/
             ├── gaussian/
@@ -125,9 +124,3 @@ The server will start on **port 5000**, and the client will start on **port 3000
 1. **Super Resolution Tab**: Users can upload a low-resolution image and apply the super-resolution model to enhance its quality.
 2. **Noise Removal Tab**: Users can upload a noisy image, select a noise type, and apply the noise removal model.
 3. **Training Section**: Configure and start training models on user-specified datasets.
-
----
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
